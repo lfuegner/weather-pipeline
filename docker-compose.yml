@@ -11,6 +11,7 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
   volumes: 
     - ./dags:/opt/airflow/dags
+    - ./data:/opt/airflow/data
     - airflow_logs:/opt/airflow/logs
   depends_on:
     postgres:
