@@ -6,6 +6,7 @@ import boto3
 import requests
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from botocore.client import Config
 
 BERLIN_LAT = 52.5200
@@ -79,3 +80,15 @@ with DAG(
         task_id="fetch_berlin_weather",
         python_callable=fetch_weather,
     )
+    
+    spark_task = SparkSubmitOperator(
+            task_id="transform_weather",
+            application="/opt/airflow/spark_jobs/transform_weather.py",
+            conn_id="spark_default",
+            env_vars={
+                "MINIO_ROOT_USER": os.environ.get("MINIO_ROOT_USER"),
+                "MINIO_ROOT_PASSWORD": os.environ.get("MINIO_ROOT_PASSWORD"),
+            },
+    )
+
+    fetch_task >> spark_task
